@@ -17,7 +17,7 @@ module TheDataRoleBlockHaml41
 
           define_method :process_line do |line|
             if (line.text.slice(0,2) === DIV_BLOCK) || (line.text[0] === DIV_ROLE)
-              push div(line.text)
+              push div(line)
             else
               original_process_line_method.bind(self).call(line)
             end
@@ -27,7 +27,7 @@ module TheDataRoleBlockHaml41
             attributes = {}
             return attributes if list.empty?
 
-            list.scan(/(#|\.|@|@@])([-:_a-zA-Z0-9]+)/) do |type, property|
+            list.scan(/(#|\.|@|@@)([-:_a-zA-Z0-9]+)/) do |type, property|
               case type
                 when '#'; attributes[ID_KEY] = property
 
@@ -54,15 +54,12 @@ module TheDataRoleBlockHaml41
                     attributes[DIV_BLOCK_ATTR] = ""
                   end
                   attributes[DIV_BLOCK_ATTR] += property
-                end
               end
             end
             attributes
           end
 
           def parse_tag(text)
-            # match = line.scan(/%([-:\w]+)([-:\w\.\#\@]*)(.*)/)[0]
-
             match = text.scan(/%([-:\w]+)([-:\w.#@]*)(.+)?/)[0]
             raise SyntaxError.new(Error.message(:invalid_tag, text)) unless match
 
@@ -113,7 +110,6 @@ module TheDataRoleBlockHaml41
             [tag_name, attributes, attributes_hashes, object_ref, nuke_outer_whitespace,
              nuke_inner_whitespace, action, value, last_line || @line.index + 1]
           end
-
         end
       end
     end
